@@ -39,9 +39,18 @@ class UserProfile(models.Model):
     
     @receiver(post_save, sender=User)
     def create_user_profile(sender, instance, created, **kwargs):
-        if created:
-            UserProfile.objects.create(user=instance)
+       if created:
+           UserProfile.objects.create(user=instance)
 
     @receiver(post_save, sender=User)
     def save_user_profile(sender, instance, **kwargs):
         instance.userprofile.save()
+
+    def is_admin(self):
+        return self.role == 'Admin'
+    
+    def is_librarian(self):
+        return self.role == 'Librarian'
+    
+    def is_member(self):
+        return self.role == 'Member'
