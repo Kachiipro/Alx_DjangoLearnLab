@@ -35,9 +35,9 @@ def is_admin(user):
     except UserProfile.DoesNotExist:
         return False
 
-@user_passes_test(is_admin)  # Restrict access to Admin users only
+@user_passes_test(is_admin)  
 def admin_dashboard(request):
-    return render(request, 'relationship_app/admin_dashboard.html')
+    return render(request, 'relationship_app/admin_view.html')
 
 
 
@@ -50,7 +50,7 @@ def is_librarian(user):
 
 @user_passes_test(is_librarian)  
 def librarian_dashboard(request):
-    return render(request, 'relationship_app/librarian_dashboard.html')
+    return render(request, 'relationship_app/librarian_view.html')
 
 
 def is_member(user):
@@ -61,4 +61,4 @@ def is_member(user):
 
 @user_passes_test(is_member) 
 def member_dashboard(request):
-    return render(request, 'relationship_app/member_dashboard.html')
+    return render(request, 'relationship_app/member_view.html')
