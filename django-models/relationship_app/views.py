@@ -27,13 +27,13 @@ class register(CreateView):
     form_class = UserCreationForm()
     success_url = reverse_lazy('login')
     template_name = 'relationship_app/register.html'
-
-def is_admin(user):
-    try:
-        return user.userprofile.role == 'Admin'
-    except UserProfile.DoesNotExist:
-        return False
-
-@user_passes_test(is_admin)  # Restrict access to Admin users only
-def admin_dashboard(request):
-    return render(request, 'admin_dashboard.html')
+    
+@user_passes_test
+def is_admin(self):
+        return self.role == 'Admin'
+@user_passes_test  
+def is_librarian(self):
+        return self.role == 'Librarian'
+@user_passes_test
+def is_member(self):
+        return self.role == 'Member'
