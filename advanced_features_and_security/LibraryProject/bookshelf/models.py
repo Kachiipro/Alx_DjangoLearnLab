@@ -1,11 +1,15 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 # Create your models here.
+class Author(models.Model):
+    name = models.CharField(max_length=250)
 
+    
 class Book(models.Model):
     title = models.CharField(max_length=200)
     author = models.CharField(max_length=100)
     published_year =models.IntegerField(default=0000)
+
 
 
     def __str__(self):
@@ -32,6 +36,11 @@ class CustomUser(AbstractUser):
     date_of_birth = models.DateField(null=True, blank=True)
     profile_photo = models.ImageField(upload_to='profile_photos/', null=True, blank=True)
 
+
+    
+class Bookshelf(models.Model):
+    title = models.CharField(max_length=50)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE, related='Bookshelf')
     class meta:
         permissions = [
             ("can_view","can_view")
@@ -41,12 +50,5 @@ class CustomUser(AbstractUser):
         ]
 
     def __str__(self):
-        return self.username
+        return self.title
     
-class Profile(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    bio = models.TextField()
-
-    def __str__(self):
-        return self.user.username 
-
