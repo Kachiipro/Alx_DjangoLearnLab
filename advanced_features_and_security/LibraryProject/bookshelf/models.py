@@ -32,6 +32,14 @@ class CustomUser(AbstractUser):
     date_of_birth = models.DateField(null=True, blank=True)
     profile_photo = models.ImageField(upload_to='profile_photos/', null=True, blank=True)
 
+    class meta:
+        permissions = [
+            ("can_view","can_view")
+            ("can_create","can_create")
+            ("can_edit","can_edit")
+            ("can_delete","can_delete")
+        ]
+
     def __str__(self):
         return self.username
     
