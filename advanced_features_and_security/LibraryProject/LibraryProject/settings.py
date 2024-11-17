@@ -139,3 +139,16 @@ CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 
 CSP_DEFAULT_SRC = ("'self'",)
+
+SECURE_SSL_REDIRECT = True
+
+SECURE_HSTS_SECONDS = 31536000
+
+# Apply HSTS to all subdomains (ensure all subdomains are served via HTTPS)
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+
+# Allow preloading of HSTS (this must be requested from browser vendors)
+SECURE_HSTS_PRELOAD = True
+
+# Ensure CSRF cookies are only sent over HTTPS
+CSRF_COOKIE_SECURE = True
