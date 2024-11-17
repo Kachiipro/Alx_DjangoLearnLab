@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
 from bookshelf.models import Book
+from .forms import ExampleForm
 
 def create_groups_and_permissions():
     # Create groups
@@ -50,8 +51,8 @@ def edit_Bookshelf (request):
 
 
 def search_books(request):
-    form = ExampLeForm (request, GET)
+    form = ExampleForm(request, GET)
     if form.is_valid():
-      query = form. cleaned_data ['query']
+      query = form.cleaned_data ['query']
       books = Book.objects.filter(title__icontains=query)
       return render (request, 'bookshelf/book_list.html', {'form': form, 'books': books})
