@@ -2,7 +2,7 @@ from .models import Book, Author
 
 from rest_framework import serializers
 
-class BookSerializers(serializers.ModelSerializer):
+class BookSerializer(serializers.ModelSerializer):
    
     class meta:
        model =  Book
