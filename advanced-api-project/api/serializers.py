@@ -13,7 +13,7 @@ class BookSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("publication should not be in the future")
         return data
 
-class  AuthorSerializer(serializers.ModelSerealizer): #This allows the API to return the authors data along with its related Books.
+class AuthorSerializer(serializers.ModelSerealizer): #This allows the API to return the authors data along with its related Books.
     comments = BookSerializers(many=True, read_only=True)
     class meta:
         model = Author
