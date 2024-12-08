@@ -3,6 +3,10 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from taggit.managers import TaggableManager
+from taggit.models import TagBase
+from django.utils.text import slugify
+from taggit.models import TagBase, GenericTaggedItemBase
+from django.db import models
 # Create your models here.
 
 class Post(models.Model):
@@ -41,3 +45,18 @@ class Comment(models.Model):
     def __str__(self):
         return f'Comment by {self.author} on {self.post}'
     
+    
+class CustomTag(TagBase):
+    slug = models.SlugField(unique=True, max_length=100)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+        
+class CustomTaggedItem(GenericTaggedItemBase):
+    tag = models.ForeignKey(
+        CustomTag,
+        on_delete=models.CASCADE,
+        related_name="tagged_items"
+    )

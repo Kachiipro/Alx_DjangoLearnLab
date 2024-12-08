@@ -11,8 +11,9 @@ from django.shortcuts import redirect
 from .models import Post, Comment
 from .forms import CommentForm
 from django.db.models import Q
-
-
+from django.views.generic.list import ListView
+from taggit.models import Tag
+from .models import Post
 
 @login_required
 def profile_view(request):
@@ -133,6 +134,17 @@ def search_posts(request):
         ).distinct()
     return render(request, 'blog/search_results.html', {'posts': posts, 'query': query})
 
-def posts_by_tag(request, tag_name):
-    posts = Post.objects.filter(tags__name__icontains=tag_name).distinct()
-    return render(request, 'blog/posts_by_tag.html', {'posts': posts, 'tag_name': tag_name})
+class PostByTagListView(ListView):
+    model = Post
+    template_name = 'blog/posts_by_tag.html'
+    context_object_name = 'posts'
+
+    def get_queryset(self):
+        tag_slug = self.kwargs.get('tag_slug')
+        self.tag = get_object_or_404(Tag, slug=tag_slug)
+        return Post.objects.filter(tags__in=[self.tag]).distinct()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['tag'] = self.tag
+        return context
