@@ -1,0 +1,54 @@
+from rest_framework import serializers
+from rest_framework.authtoken.models import Token
+from django.contrib.auth import authenticate
+from .models import CustomUser
+
+class UserRegistrationSerializer(serializers.ModelSerializer):
+    token = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'username', 'email', 'password', 'bio', 'profile_picture', 'token']
+        extra_kwargs = {
+            'password': {'write_only': True},  # Ensure password isn't returned in the response
+        }
+
+    def get_token(self, obj):
+        # Generate or retrieve the token for the user
+        token, _ = Token.objects.get_or_create(user=obj)
+        return token.key
+
+    def create(self, validated_data):
+        # Create the user
+        user = CustomUser.objects.create_user(
+            username=validated_data['username'],
+            email=validated_data['email'],
+            password=validated_data['password'],
+            bio=validated_data.get('bio', ''),
+            profile_picture=validated_data.get('profile_picture', None),
+        )
+        # Automatically create a token for the new user
+        Token.objects.create(user=user)
+        return user
+
+
+class UserLoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField(write_only=True)
+    token = serializers.CharField(read_only=True)
+
+    def validate(self, data):
+        username = data.get('username')
+        password = data.get('password')
+
+        if not username or not password:
+            raise serializers.ValidationError('Username and password are required.')
+
+        # Authenticate user
+        user = authenticate(username=username, password=password)
+        if not user:
+            raise serializers.ValidationError('Invalid credentials.')
+
+        # Generate or retrieve token
+        token, _ = Token.objects.get_or_create(user=user)
+        return {'username': user.username, 'token': token.key}
