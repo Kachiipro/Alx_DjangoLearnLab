@@ -1,0 +1,17 @@
+django
+djangorestframework
+djangorestframework-simplejwt
+
+
+
+
+
+
+
+
+
+
+
+
+
+
