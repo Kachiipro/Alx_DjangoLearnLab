@@ -6,6 +6,8 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from .serializers import PostSerializer, CommentSerializer
+from rest_framework import permissions, generics
+
 
 
 class IsAuthorOrReadOnly(permissions.BasePermission):
@@ -44,14 +46,19 @@ class CommentViewSet(viewsets.ModelViewSet):
         # Automatically assign the logged-in user as the author of the comment
         serializer.save(author=self.request.user)
 
-class FeedView(APIView):
-    permission_classes = [IsAuthenticated]
+class FeedView(generics.GenericAPIView):
+    """
+    Returns posts from users followed by the current user, ordered by creation date.
+    """
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        """
-        Get posts from followed users, ordered by creation date.
-        """
-        followed_users = request.user.followers.all()
-        posts = Post.objects.filter(author__in=followed_users).order_by('-created_at')
+        # Get the list of users the current user is following
+        following_users = request.user.following.all()
+
+        # Fetch posts authored by the followed users
+        posts = Post.objects.filter(author__in=following_users).order_by('-created_at')
+
+        # Serialize the posts
         serializer = PostSerializer(posts, many=True)
         return Response(serializer.data, status=200)
