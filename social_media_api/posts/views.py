@@ -68,27 +68,24 @@ class FeedView(generics.GenericAPIView):
 
 
 class LikePostView(generics.GenericAPIView):
-    """
-    Handles liking a post and creating a notification.
-    """
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, pk):
         post = get_object_or_404(Post, pk=pk)
 
-        # Check if the user has already liked the post
+        # Check if user already liked the post
         if Like.objects.filter(user=request.user, post=post).exists():
             return Response({"detail": "You have already liked this post."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Create the like
+        # Create a like
         Like.objects.create(user=request.user, post=post)
 
-        # Create a notification for the post's author
-        if post.author != request.user:  # Avoid notifying the author about their own actions
+        # Create a notification
+        if request.user != post.author:  # Don't notify the user if they like their own post
             Notification.objects.create(
                 recipient=post.author,
                 actor=request.user,
-                verb="liked",
+                verb="liked your post",
                 target=post
             )
 
@@ -96,17 +93,16 @@ class LikePostView(generics.GenericAPIView):
 
 
 class UnlikePostView(generics.GenericAPIView):
-    """
-    Handles unliking a post.
-    """
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, pk):
         post = get_object_or_404(Post, pk=pk)
-        like = Like.objects.filter(user=request.user, post=post).first()
 
+        # Check if user has liked the post
+        like = Like.objects.filter(user=request.user, post=post).first()
         if not like:
             return Response({"detail": "You have not liked this post."}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Remove the like
         like.delete()
-        return Response({"detail": "Post unliked successfully."}, status=status.HTTP_204_NO_CONTENT)
+        return Response({"detail": "Post unliked successfully."}, status=status.HTTP_200_OK)
