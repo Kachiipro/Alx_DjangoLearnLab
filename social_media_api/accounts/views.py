@@ -50,7 +50,10 @@ class FollowUserView(generics.GenericAPIView):
 class UnfollowUserView(generics.GenericAPIView):
     """
     Allows a user to unfollow another user.
+    
     """
+    queryset = CustomUser.objects.all()
+    
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, user_id):
