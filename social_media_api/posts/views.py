@@ -2,6 +2,9 @@ from rest_framework import viewsets, permissions, filters
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.exceptions import PermissionDenied
 from .models import Post, Comment
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
 from .serializers import PostSerializer, CommentSerializer
 
 
@@ -41,3 +44,14 @@ class CommentViewSet(viewsets.ModelViewSet):
         # Automatically assign the logged-in user as the author of the comment
         serializer.save(author=self.request.user)
 
+class FeedView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        """
+        Get posts from followed users, ordered by creation date.
+        """
+        followed_users = request.user.followers.all()
+        posts = Post.objects.filter(author__in=followed_users).order_by('-created_at')
+        serializer = PostSerializer(posts, many=True)
+        return Response(serializer.data, status=200)
