@@ -74,16 +74,16 @@ class LikePostView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, pk):
-        # Fetch the post or return a 404 if not found
-        post = get_object_or_404(Post, pk=pk)
+        # Ensure post exists using generics.get_object_or_404
+        post = generics.get_object_or_404(Post, pk=pk)
 
-        # Create the like if it doesn't already exist
+        # Check if like already exists, or create it
         like, created = Like.objects.get_or_create(user=request.user, post=post)
 
-        if not created:  # If the like already exists
+        if not created:
             return Response({"detail": "You have already liked this post."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Create a notification for the post's author if not self
+        # Create notification if post author is not the liker
         if post.author != request.user:
             Notification.objects.create(
                 recipient=post.author,
@@ -102,14 +102,14 @@ class UnlikePostView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, pk):
-        # Fetch the post or return a 404 if not found
-        post = get_object_or_404(Post, pk=pk)
+        # Ensure post exists using generics.get_object_or_404
+        post = generics.get_object_or_404(Post, pk=pk)
 
-        # Check if the like exists
+        # Check if like exists before trying to delete
         like = Like.objects.filter(user=request.user, post=post).first()
+
         if not like:
             return Response({"detail": "You have not liked this post."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Delete the like
         like.delete()
         return Response({"detail": "Post unliked successfully."}, status=status.HTTP_204_NO_CONTENT)
